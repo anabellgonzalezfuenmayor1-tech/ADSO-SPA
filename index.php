@@ -1,75 +1,225 @@
 <?php
 
+//variables controladoras
+$contador_empleado = 0;
 
-$citas = [];
-$empleados = [];
-
-
-$diasSemana = [
-    "Lunes",
-    "Martes",
-    "Miércoles",
-    "Jueves",
-    "Viernes",
-    "Sábado"
+//datos de prueba
+$empleados_dp = [
+    [
+        "id" => 1,
+        "nombre" => "Vanitas",
+        "especialidades" => [1, 3, 4]
+    ],
+    [
+        "id" => 2,
+        "nombre" => "Marinnette",
+        "especialidades" => [4, 5, 6]
+    ],
+    [
+        "id" => 3,
+        "nombre" => "Adrien",
+        "especialidades" => [7, 2, 1]
+    ],
+    [
+        "id" => 4,
+        "nombre" => "Noe",
+        "especialidades" => [2]
+    ],
 ];
 
+$citas_dp = [
+    [
+        "cliente" => "Ana",
+        "cita" => [
+            [
+                "servicio" => 1,
+                "empleado" => 3
+            ]
+        ],
+        "dia" => "lunes",
+        "hora_inicio" => 8
+    ],
+    [
+        "cliente" => "Mariana",
+        "cita" => [
+            [
+                "servicio" => 2,
+                "empleado" => 4
+            ]
+        ],
+        "dia" => "martes",
+        "hora_inicio" => 8
+    ],
+    [
+        "cliente" => "Atenea",
+        "cita" => [
+            [
+                "servicio" => 1,
+                "empleado" => 1
+            ],
+            [
+                "servicio" => 2,
+                "empleado" => 4
+            ],
+            [
+                "servicio" => 3,
+                "empleado" => 1
+            ]
+        ],
+        "dia" => "miercoles",
+        "hora_inicio" => 8
+    ],
+    [
+        "cliente" => "Penelope",
+        "cita" => [
+            [
+                "servicio" => 1,
+                "empleado" => 1
+            ]
+        ],
+        "dia" => "viernes",
+        "hora_inicio" => 8
+    ],
+    [
+        "cliente" => "Penelope",
+        "cita" => [
+            [
+                "servicio" => 2,
+                "empleado" => 3
+            ]
+        ],
+        "dia" => "sabado",
+        "hora_inicio" => 8
+    ]
+];
 
+// arrreglso definidos
+$diasSemana = [
+    "lunes",
+    "martes",
+    "miercoles",
+    "jueves",
+    "viernes",
+    "sabado"
+];
 
-//servicios lista
 $servicios = [
     [
         "id" => 1,
         "nombre" => "Limpieza facial",
         "precio" => 80000,
-        "duracion" => "2 horas"
+        "duracion" => 2
     ],
     [
         "id" => 2,
         "nombre" => "Manicure",
         "precio" => 35000,
-        "duracion" => "1 hora"
+        "duracion" => 2
     ],
     [
         "id" => 3,
         "nombre" => "Pedicure",
         "precio" => 40000,
-        "duracion" => "1 hora"
+        "duracion" => 1
     ],
     [
         "id" => 4,
         "nombre" => "Masaje relajante",
         "precio" => 90000,
-        "duracion" => "1 hora"
+        "duracion" => 1
     ],
     [
         "id" => 5,
         "nombre" => "Masaje descontracturante",
         "precio" => 100000,
-        "duracion" => "1 hora"
+        "duracion" => 1
     ],
     [
         "id" => 6,
         "nombre" => "Exfoliación corporal",
         "precio" => 60000,
-        "duracion" => "1 hora"
+        "duracion" => 1
     ],
     [
         "id" => 7,
         "nombre" => "Tratamiento antiedad",
         "precio" => 120000,
-        "duracion" => "2 horas"
+        "duracion" => 1
+    ]
+];
+
+// datos ingresados
+$empleados = [
+    [
+        "id" => 1,
+        "nombre" => "Vanitas",
+        "especialidades" => [1, 3, 4]
+    ]
+];
+$citas = [
+    [
+        "cliente" => "Ana",
+        "cita" => [
+            [
+                "servicio" => 1,
+                "empleado" => 3
+            ]
+        ],
+        "dia" => "lunes",
+        "hora_inicio" => 8
     ]
 ];
 
 // funciones
-function OptionInvalid()
+//mostrar datos 
+function show_data($empleados, $citas)
 {
-    return "\n<===             Opción ingresada inválida             ===>\n\n";
+    echo "Empleados: \n";
+    foreach ($empleados as $empleado) {
+        echo "\n\nId: " . $empleado["id"] . " Nombre: " . $empleado["nombre"] . " Especialidades: ";
+        $cont = 0;
+        foreach ($empleado["especialidades"] as $especialidad) {
+            $cont += 1;
+            if (count($empleado["especialidades"]) != $cont) {
+                echo $especialidad . ", ";
+            } else {
+                echo $especialidad;
+                echo "\n";
+            }
+        }
+        echo "\n";
+    }
+    echo "Citas: \n";
+    foreach ($citas as $cita) {
+        echo "Cliente: " . $cita["cliente"] . " ";
+        $cont = 0;
+        foreach ($cita["cita"] as $ct) {
+            $cont += 1;
+            if (count($cita["cita"]) != $cont) {
+                echo "Servicio: " . $ct["servicio"]. " Empleado: ".$ct["empleado"] . ", ";
+            } else {
+                echo "Servicio: " . $ct["servicio"]. " Empleado: ".$ct["empleado"];
+                echo "\n";
+            }
+        }
+        echo "\n";
+    }
+}
+//option ingresada invalida
+function option_invalid()
+{
+    return "\n<===                Opción ingresada inválida                ===>\n\n";
+}
+
+function datos_prueba(&$empleados, $empleados_dp, &$citas, $citas_dp)
+{
+    $empleados = $empleados_dp;
+    $citas = $citas_dp;
+    echo "\n<===        Datos de prueba ingresados correctamente         ===>\n\n";
 }
 
 // funciones de empleados
-function registrarEmpleado($servicios, &$empleados)
+function registrar_empleado($servicios, &$empleados, &$contador_empleado)
 {
     while (true) {
         echo "\n";
@@ -84,7 +234,6 @@ function registrarEmpleado($servicios, &$empleados)
         }
 
         $especialidades = [];
-
         while (true) {
             // Catálogo de especialidades
             echo "\n";
@@ -101,7 +250,7 @@ function registrarEmpleado($servicios, &$empleados)
             $especialidad = readline("Ingrese el número de la especialidad del empleado: ");
 
             if ($especialidad < 1 || $especialidad > count($servicios)) {
-                echo OptionInvalid();
+                echo option_invalid();
             } else {
                 if (in_array($especialidad, $especialidades)) {
                     echo "\n";
@@ -124,8 +273,9 @@ function registrarEmpleado($servicios, &$empleados)
                     if (strtolower($otraEspecialidad) == "s") {
                         break;
                     } else if (strtolower($otraEspecialidad) == "n") {
-
+                        $contador_empleado += 1;
                         $empleados[] = [
+                            "id" => $contador_empleado,
                             "nombre" => $nombre,
                             "especialidades" => $especialidades
                         ];
@@ -136,9 +286,8 @@ function registrarEmpleado($servicios, &$empleados)
                         echo "=================================================================\n";
 
                         break;
-
                     } else {
-                        echo OptionInvalid();
+                        echo option_invalid();
                     }
                 }
 
@@ -163,7 +312,7 @@ function registrarEmpleado($servicios, &$empleados)
                 echo "=================================================================\n";
                 break;
             } else {
-                echo OptionInvalid();
+                echo option_invalid();
             }
         }
 
@@ -172,10 +321,9 @@ function registrarEmpleado($servicios, &$empleados)
         }
     }
 }
-
-$estado = true;
-
-while ($estado) {
+//
+$es_Activo = true;
+while ($es_Activo) {
     echo "=================================================================\n";
     echo "                 BIENVENIDO AL MENU DE ADSO SPA                  \n";
     echo "=================================================================\n\n";
@@ -195,7 +343,7 @@ while ($estado) {
 
     switch ($op) {
         case "1":
-            $sale = registrarEmpleado($servicios, $empleados);
+            $sale = registrar_empleado($servicios, $empleados, $contador_empleado);
             echo "cantidad de empleados registrados: " . count($empleados) . "\n";
             break;
 
@@ -218,15 +366,18 @@ while ($estado) {
             break;
 
         case "8":
-            $estado = false;
+            $es_Activo = false;
             break;
 
         case "dp":
+            datos_prueba($empleados, $empleados_dp, $citas, $citas_dp);
             break;
 
+        case "md":
+            show_data($empleados, $citas);
+            break;
         default:
-            echo OptionInvalid();
+            echo option_invalid();
             break;
     }
 }
-?>
