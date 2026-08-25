@@ -331,7 +331,6 @@ function datos_prueba(array &$empleados, array $empleados_dp, array &$citas, arr
     if ($contador_dp > 0) {
         echo "\n<===        Los datos de prueba ya han sido ingresados       ===>\n\n";
         return;
-
     }
     $empleados = $empleados_dp;
     $citas = $citas_dp;
@@ -362,7 +361,7 @@ function servicio_mas_solicitado(array &$citas, array $servicios): void
     });
     echo "\n";
     echo "=================================================================\n";
-    echo "                  SERVICIOS MAS SOLICITADOS                      \n";
+    echo "                     SERVICIO MA SOLICITADO                      \n";
     echo "=================================================================\n\n";
 
     foreach ($servicios as $servicio) {
@@ -380,10 +379,10 @@ function servicio_mas_solicitado(array &$citas, array $servicios): void
         echo "Servicio: " . $servicio["nombre"] . "\n";
         echo "Cantidad de veces solicitado: " . $cantidad_servicio . "\n";
         echo "Total facturado: $" . number_format($total_servicio, 2, ",", ".") . "\n\n";
+        break;
     }
 
     echo "\n<===          Total facturado por empleado calculado          ===>\n\n";
-
 }
 
 function agenda_por_dia(array &$citas, array $diasSemana, array $servicios, $empleados): void
@@ -403,7 +402,6 @@ function agenda_por_dia(array &$citas, array $diasSemana, array $servicios, $emp
         foreach ($diasSemana as $dia) {
             echo "(" . $contador . ") " . $dia . "\n";
             $contador++;
-
         }
         echo "\n=================================================================\n\n";
         $dia_seleccionado = readline("Ingrese el número del día de la semana (enter para volver): ");
@@ -446,7 +444,6 @@ function agenda_por_dia(array &$citas, array $diasSemana, array $servicios, $emp
     }
 
     echo "\n<===          Agenda de un día mostrada correctamente         ===>\n\n";
-
 }
 
 function facturado_por_cita(array &$citas, array $servicios): void
@@ -706,13 +703,12 @@ function liquidacion_comisiones(array &$empleados, array $citas, array $servicio
             echo "Total Comisiones: $" . number_format($empleado["comisiones"], 2, ",", ".") . "\n\n";
         }
         $cont++;
-
-
     }
 
     echo "\n<===          Liquidación de comisiones calculada             ===>\n\n";
 }
-function registrar_cita(array $servicios,array $empleados,array &$citas,array $diasSemana, int $contador_dp): void {
+function registrar_cita(array $servicios, array $empleados, array &$citas, array $diasSemana, int $contador_dp): void
+{
     if ($contador_dp > 0) {
         echo "\n<=== No se puede registrar empleados(datos de prueba cargados) ===>\n\n";
         return;
@@ -727,178 +723,10 @@ function registrar_cita(array $servicios,array $empleados,array &$citas,array $d
     echo "                       REGISTRAR CITA                            \n";
     echo "=================================================================\n\n";
 
-    $cliente = readline("Ingrese el nombre del cliente(digite enter para volver): ");
+    foreach($servicios as $servicio){
+        echo $servicio["id"] .".". " Nombre: " .$servicio["nombre"];
 
-    if ($cliente == "") {
-        return;
     }
-
-    $servicios_cita = [];
-
-    while (true) {
-
-        echo "\n";
-        echo "=================================================================\n";
-        echo "                  SERVICIOS DISPONIBLES                         \n";
-        echo "=================================================================\n\n";
-
-        foreach ($servicios as $servicio) {
-            echo "(" . $servicio["id"] . ") " . $servicio["nombre"] . "\n";
-        }
-
-        echo "\n=================================================================\n";
-
-        $servicio_seleccionado = readline("Ingrese el número del servicio: ");
-
-        if (!is_numeric($servicio_seleccionado)) {
-            option_invalid();
-            continue;
-        }
-
-        $servicio_seleccionado = (int) $servicio_seleccionado;
-
-        if ($servicio_seleccionado < 1 || $servicio_seleccionado > count($servicios)) {
-            option_invalid();
-            continue;
-        }
-
-        $servicios_cita[] = $servicio_seleccionado;
-
-        echo "\nServicio agregado correctamente.\n";
-
-        while (true) {
-
-            $otro_servicio = readline(
-                "\n¿Desea agregar otro servicio? (s/n): "
-            );
-
-            switch (strtolower($otro_servicio)) {
-
-                case "s":
-                    break 2;
-
-                case "n":
-                    break 3;
-
-                default:
-                    option_invalid();
-                    break;
-            }
-        }
-    }
-
-    echo "\n";
-    echo "=================================================================\n";
-    echo "                  EMPLEADOS DISPONIBLES                         \n";
-    echo "=================================================================\n\n";
-
-    foreach ($empleados as $empleado) {
-        echo "(" . $empleado["id"] . ") " . $empleado["nombre"] . "\n";
-    }
-
-    echo "\n=================================================================\n";
-
-    while (true) {
-
-        $empleado_seleccionado = readline(
-            "Ingrese el número del empleado: "
-        );
-
-        if (!is_numeric($empleado_seleccionado)) {
-            option_invalid();
-            continue;
-        }
-
-        $empleado_seleccionado = (int) $empleado_seleccionado;
-
-        if ($empleado_seleccionado < 1 || $empleado_seleccionado > count($empleados)) {
-            option_invalid();
-            continue;
-        }
-
-        break;
-    }
-
-    // DÍA
-    echo "\n";
-    echo "=================================================================\n";
-    echo "                     DÍAS DISPONIBLES                            \n";
-    echo "=================================================================\n\n";
-
-    $contador = 1;
-
-    foreach ($diasSemana as $dia) {
-        echo "(" . $contador . ") " . $dia . "\n";
-        $contador++;
-    }
-
-    echo "\n=================================================================\n";
-
-    while (true) {
-
-        $dia_seleccionado = readline(
-            "Ingrese el número del día: "
-        );
-
-        if (!is_numeric($dia_seleccionado)) {
-            option_invalid();
-            continue;
-        }
-
-        $dia_seleccionado = (int) $dia_seleccionado;
-
-        if ($dia_seleccionado < 1 || $dia_seleccionado > count($diasSemana)) {
-            option_invalid();
-            continue;
-        }
-
-        break;
-    }
-
-    // HORA
-    while (true) {
-
-        $hora = readline(
-            "\nIngrese la hora de la cita (8 - 18): "
-        );
-
-        if (!is_numeric($hora)) {
-            option_invalid();
-            continue;
-        }
-
-        $hora = (int) $hora;
-
-        if ($hora < 8 || $hora > 18) {
-            option_invalid();
-            continue;
-        }
-
-        break;
-    }
-
-    // GUARDAR CITA
-    $cita = [];
-
-    foreach ($servicios_cita as $servicio) {
-        $cita[] = [
-            "servicio" => $servicio,
-            "empleado" => $empleado_seleccionado
-        ];
-    }
-
-    $citas[] = [
-        "cliente" => $cliente,
-        "cita" => $cita,
-        "dia" => $diasSemana[$dia_seleccionado - 1],
-        "hora_inicio" => $hora,
-        "total" => 0
-    ];
-
-    echo "\n";
-    echo "=================================================================\n";
-    echo "                CITA REGISTRADA CORRECTAMENTE                   \n";
-    echo "=================================================================\n\n";
 }
 
 $es_activo = true;
