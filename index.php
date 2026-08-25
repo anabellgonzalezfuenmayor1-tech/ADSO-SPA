@@ -1,6 +1,7 @@
 <?php
 
 $contador_empleado = 0;
+$contador_dp = 0;
 
 $empleados_dp = [
     [
@@ -40,6 +41,7 @@ $citas_dp = [
         ],
         "dia" => "lunes",
         "hora_inicio" => 8,
+        "total" => 0,
     ],
     [
         "cliente" => "Carlos",
@@ -51,6 +53,7 @@ $citas_dp = [
         ],
         "dia" => "lunes",
         "hora_inicio" => 8,
+        "total" => 0,
     ],
     [
         "cliente" => "Alicia",
@@ -62,6 +65,7 @@ $citas_dp = [
         ],
         "dia" => "martes",
         "hora_inicio" => 8,
+        "total" => 0,
     ],
     [
         "cliente" => "Sherman",
@@ -73,6 +77,7 @@ $citas_dp = [
         ],
         "dia" => "martes",
         "hora_inicio" => 9,
+        "total" => 0
     ],
     [
         "cliente" => "La Reina de Hielo",
@@ -84,6 +89,8 @@ $citas_dp = [
         ],
         "dia" => "martes",
         "hora_inicio" => 11,
+        "total" => 0
+
     ],
     [
         "cliente" => "Marta",
@@ -95,6 +102,8 @@ $citas_dp = [
         ],
         "dia" => "miercoles",
         "hora_inicio" => 8,
+        "total" => 0
+
     ],
     [
         "cliente" => "Ana",
@@ -106,6 +115,8 @@ $citas_dp = [
         ],
         "dia" => "miercoles",
         "hora_inicio" => 10,
+        "total" => 0
+
     ],
     [
         "cliente" => "El Sombrerero",
@@ -117,6 +128,8 @@ $citas_dp = [
         ],
         "dia" => "miercoles",
         "hora_inicio" => 8,
+        "total" => 0
+
     ],
     [
         "cliente" => "Carlos",
@@ -128,6 +141,8 @@ $citas_dp = [
         ],
         "dia" => "jueves",
         "hora_inicio" => 9,
+        "total" => 0
+
     ],
     [
         "cliente" => "El Conejo",
@@ -139,6 +154,8 @@ $citas_dp = [
         ],
         "dia" => "jueves",
         "hora_inicio" => 8,
+        "total" => 0
+
     ],
     [
         "cliente" => "Alicia",
@@ -150,6 +167,8 @@ $citas_dp = [
         ],
         "dia" => "viernes",
         "hora_inicio" => 8,
+        "total" => 0
+
     ],
     [
         "cliente" => "Juan",
@@ -161,6 +180,8 @@ $citas_dp = [
         ],
         "dia" => "viernes",
         "hora_inicio" => 8,
+        "total" => 0
+
     ],
     [
         "cliente" => "La Reina Roja",
@@ -172,6 +193,8 @@ $citas_dp = [
         ],
         "dia" => "viernes",
         "hora_inicio" => 10,
+        "total" => 0
+
     ],
     [
         "cliente" => "Marta",
@@ -183,6 +206,8 @@ $citas_dp = [
         ],
         "dia" => "sabado",
         "hora_inicio" => 10,
+        "total" => 0
+
     ],
     [
         "cliente" => "Sherman",
@@ -194,6 +219,8 @@ $citas_dp = [
         ],
         "dia" => "sabado",
         "hora_inicio" => 9,
+        "total" => 0
+
     ],
 ];
 
@@ -260,19 +287,7 @@ $empleados = [
     ],
 ];
 
-$citas = [
-    [
-        "cliente" => "Ana",
-        "cita" => [
-            [
-                "servicio" => 1,
-                "empleado" => 3,
-            ],
-        ],
-        "dia" => "lunes",
-        "hora_inicio" => 8,
-    ],
-];
+$citas = [];
 
 function show_data(array $empleados, array $citas): void
 {
@@ -313,23 +328,72 @@ function option_invalid(): void
     echo "\n<===                Opción ingresada inválida                ===>\n\n";
 }
 
-function datos_prueba(
-    array &$empleados,
-    array $empleados_dp,
-    array &$citas,
-    array $citas_dp
-): void {
+function datos_prueba(array &$empleados, array $empleados_dp, array &$citas, array $citas_dp, int &$contador_dp): void
+{
+    if ($contador_dp > 0) {
+        echo "\n<===        Los datos de prueba ya han sido ingresados       ===>\n\n";
+        return;
+
+    }
     $empleados = $empleados_dp;
     $citas = $citas_dp;
-
+    $contador_dp += 1;
     echo "\n<===        Datos de prueba ingresados correctamente         ===>\n\n";
 }
 
-function registrar_empleado(
-    array $servicios,
-    array &$empleados,
-    int &$contador_empleado
-): void {
+function servicio_mas_solicitado(array &$citas, array $servicios): void
+{
+    if (count($citas) === 0) {
+        echo "\n<===                 No hay citas registradas                ===>\n\n";
+        return;
+    }
+
+    foreach ($citas as &$cita) {
+        $cita["total"] = 0;
+        foreach ($cita["cita"] as $ct) {
+            foreach ($servicios as $servicio) {
+                if ($servicio["id"] == $ct["servicio"]) {
+                    $cita["total"] += $servicio["precio"];
+                }
+            }
+        }
+    }
+
+    usort($citas, function ($a, $b) {
+        return $b["total"] <=> $a["total"];
+    });
+    echo "\n";
+    echo "=================================================================\n";
+    echo "                  SERVICIOS MAS SOLICITADOS                      \n";
+    echo "=================================================================\n\n";
+
+    foreach ($servicios as $servicio) {
+        $cantidad_servicio = 0;
+        $total_servicio = 0;
+        foreach ($citas as $cita) {
+            foreach ($cita["cita"] as $ct) {
+                if ($servicio["id"] == $ct["servicio"]) {
+                    $cantidad_servicio += 1;
+                    $total_servicio += $servicio["precio"];
+                }
+            }
+        }
+        
+        echo "Servicio: " . $servicio["nombre"] . "\n";
+        echo "Cantidad de veces solicitado: " . $cantidad_servicio . "\n";
+        echo "Total facturado: $" . number_format($total_servicio, 0, ",", ".") . "\n\n";
+    }
+
+    echo "\n<===          Total facturado por empleado calculado          ===>\n\n";
+
+}
+
+function registrar_empleado(array $servicios, array &$empleados, int &$contador_empleado, int $contador_dp): void
+{
+    if ($contador_dp > 0) {
+        echo "\n<=== No se puede registrar empleados(datos de prueba cargados) ===>\n\n";
+        return;
+    }
     while (true) {
         echo "\n";
         echo "=================================================================\n";
@@ -479,11 +543,13 @@ function total_facturado(
         }
     }
 
-    unset($empleado);
-
     usort($empleados, function ($a, $b) {
         return $b["facturado"] <=> $a["facturado"];
     });
+
+    echo "=================================================================\n";
+    echo "                  TOTAL FACTURADO POR EMPLEADO                   \n";
+    echo "=================================================================\n\n";
 
     foreach ($empleados as $empleado) {
         echo "Nombre: " . $empleado["nombre"];
@@ -525,7 +591,8 @@ while ($es_activo) {
             registrar_empleado(
                 $servicios,
                 $empleados,
-                $contador_empleado
+                $contador_empleado,
+                $contador_dp
             );
 
             echo "Cantidad de empleados registrados: ";
@@ -544,6 +611,10 @@ while ($es_activo) {
             break;
 
         case "4":
+            servicio_mas_solicitado(
+                $citas,
+                $servicios
+            );
             break;
 
         case "5":
@@ -564,7 +635,8 @@ while ($es_activo) {
                 $empleados,
                 $empleados_dp,
                 $citas,
-                $citas_dp
+                $citas_dp,
+                $contador_dp
             );
             break;
 
