@@ -378,7 +378,7 @@ function servicio_mas_solicitado(array &$citas, array $servicios): void
                 }
             }
         }
-        
+
         echo "Servicio: " . $servicio["nombre"] . "\n";
         echo "Cantidad de veces solicitado: " . $cantidad_servicio . "\n";
         echo "Total facturado: $" . number_format($total_servicio, 0, ",", ".") . "\n\n";
@@ -386,6 +386,87 @@ function servicio_mas_solicitado(array &$citas, array $servicios): void
 
     echo "\n<===          Total facturado por empleado calculado          ===>\n\n";
 
+}
+
+function agenda_por_dia(array &$citas, array $diasSemana, array $servicios, $empleados): void
+{
+    if (count($citas) === 0) {
+        echo "\n<===                 No hay citas registradas                ===>\n\n";
+        return;
+    }
+
+    echo "\n";
+    echo "=================================================================\n";
+    echo "                      DIAS DE LA SEMANA                          \n";
+    echo "=================================================================\n\n";
+
+    while (true) {
+        $contador = 1;
+        foreach ($diasSemana as $dia) {
+            echo "(" . $contador . ") " . $dia . "\n";
+            $contador++;
+
+        }
+        echo "\n=================================================================\n\n";
+        $dia_seleccionado = readline("Ingrese el número del día de la semana (enter para volver): ");
+        if ($dia_seleccionado === "") {
+            break;
+        }
+        if ($dia_seleccionado < 1 || $dia_seleccionado > count($diasSemana)) {
+            option_invalid();
+            continue;
+        }
+        
+        echo "=================================================================\n";
+        echo "                      AGENDA DEL " . strtoupper($diasSemana[$dia_seleccionado - 1]) . "                      \n";
+        echo "=================================================================\n\n";
+        
+        usort($citas, function ($a, $b) {
+            return $a["hora_inicio"] <=> $b["hora_inicio"];
+        });
+        facturado_por_cita($citas, $servicios);
+        foreach ($citas as $cita) {
+            if ($cita["dia"] === $diasSemana[$dia_seleccionado - 1]) {
+                echo "Cliente: " . $cita["cliente"] . "\n";
+                foreach ($cita["cita"] as $ct) {
+                    foreach ($servicios as $servicio) {
+                        if ($servicio["id"] === $ct["servicio"]) {
+                            echo "Servicio: " . $servicio["nombre"] . "\n";
+                            foreach ($empleados as $empleado) {
+                                if ($empleado["id"] === $ct["empleado"]) {
+                                    echo "Empleado asignado: " . $empleado["nombre"] . "\n";
+                                }
+                            }
+                        }
+                    }
+                }
+                echo "Hora de inicio: " . $cita["hora_inicio"] . ":00\n";
+                echo "Total: $" . number_format($cita["total"], 0, ",", ".") . "\n\n";
+            }
+        }
+        break;
+    }
+
+    echo "\n<===          Agenda de un día mostrada correctamente         ===>\n\n";
+
+}
+
+function facturado_por_cita(array &$citas, array $servicios): void
+{
+    if (count($citas) === 0) {
+        return;
+    }
+
+    foreach ($citas as &$cita) {
+        $cita["total"] = 0;
+        foreach ($cita["cita"] as $ct) {
+            foreach ($servicios as $servicio) {
+                if ($servicio["id"] == $ct["servicio"]) {
+                    $cita["total"] += $servicio["precio"];
+                }
+            }
+        }
+    }
 }
 
 function registrar_empleado(array $servicios, array &$empleados, int &$contador_empleado, int $contador_dp): void
@@ -618,6 +699,12 @@ while ($es_activo) {
             break;
 
         case "5":
+            agenda_por_dia(
+                $citas,
+                $diasSemana,
+                $servicios,
+                $empleados
+            );
             break;
 
         case "6":
