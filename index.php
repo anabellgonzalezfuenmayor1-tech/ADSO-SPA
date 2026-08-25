@@ -9,24 +9,29 @@ $empleados_dp = [
         "nombre" => "Vanitas",
         "especialidades" => [1, 3, 4],
         "facturado" => 0,
+        "comisiones" => 0,
+
     ],
     [
         "id" => 2,
         "nombre" => "Marinnette",
         "especialidades" => [4, 5, 6],
         "facturado" => 0,
+        "comisiones" => 0,
     ],
     [
         "id" => 3,
         "nombre" => "Adrien",
         "especialidades" => [7, 2, 1],
         "facturado" => 0,
+        "comisiones" => 0,
     ],
     [
         "id" => 4,
         "nombre" => "Noe",
         "especialidades" => [2],
         "facturado" => 0,
+        "comisiones" => 0,
     ],
 ];
 
@@ -278,14 +283,7 @@ $servicios = [
     ],
 ];
 
-$empleados = [
-    [
-        "id" => 1,
-        "nombre" => "Vanitas",
-        "especialidades" => [1, 3, 4],
-        "facturado" => 0,
-    ],
-];
+$empleados = [];
 
 $citas = [];
 
@@ -381,7 +379,7 @@ function servicio_mas_solicitado(array &$citas, array $servicios): void
 
         echo "Servicio: " . $servicio["nombre"] . "\n";
         echo "Cantidad de veces solicitado: " . $cantidad_servicio . "\n";
-        echo "Total facturado: $" . number_format($total_servicio, 0, ",", ".") . "\n\n";
+        echo "Total facturado: $" . number_format($total_servicio, 2, ",", ".") . "\n\n";
     }
 
     echo "\n<===          Total facturado por empleado calculado          ===>\n\n";
@@ -416,11 +414,11 @@ function agenda_por_dia(array &$citas, array $diasSemana, array $servicios, $emp
             option_invalid();
             continue;
         }
-        
+
         echo "=================================================================\n";
         echo "                      AGENDA DEL " . strtoupper($diasSemana[$dia_seleccionado - 1]) . "                      \n";
         echo "=================================================================\n\n";
-        
+
         usort($citas, function ($a, $b) {
             return $a["hora_inicio"] <=> $b["hora_inicio"];
         });
@@ -441,7 +439,7 @@ function agenda_por_dia(array &$citas, array $diasSemana, array $servicios, $emp
                     }
                 }
                 echo "Hora de inicio: " . $cita["hora_inicio"] . ":00\n";
-                echo "Total: $" . number_format($cita["total"], 0, ",", ".") . "\n\n";
+                echo "Total: $" . number_format($cita["total"], 2, ",", ".") . "\n\n";
             }
         }
         break;
@@ -608,6 +606,32 @@ function total_facturado(
         return;
     }
 
+    facturado_por_empleado($empleados, $citas, $servicios);
+    usort($empleados, function ($a, $b) {
+        return $b["facturado"] <=> $a["facturado"];
+    });
+
+    echo "=================================================================\n";
+    echo "                  TOTAL FACTURADO POR EMPLEADO                   \n";
+    echo "=================================================================\n\n";
+
+    foreach ($empleados as $empleado) {
+        echo "Nombre: " . $empleado["nombre"];
+        echo " Facturado: $";
+        echo number_format(
+            $empleado["facturado"],
+            2,
+            ",",
+            "."
+        );
+        echo "\n";
+    }
+
+    echo "\n<===          Total facturado por empleado calculado          ===>\n\n";
+}
+
+function facturado_por_empleado(array &$empleados, array $citas, array $servicios): void
+{
     foreach ($empleados as &$empleado) {
         $empleado["facturado"] = 0;
 
@@ -623,28 +647,70 @@ function total_facturado(
             }
         }
     }
+}
+
+function liquidacion_comisiones(array &$empleados, array $citas, array $servicios): void
+{
+    if (count($empleados) === 0) {
+        echo "\n<===               No hay empleados registrados              ===>\n\n";
+        return;
+    }
+
+    echo "=================================================================\n";
+    echo "                  LIQUIDACIÓN DE COMISIONES                     \n";
+    echo "=================================================================\n\n";
+
+
+    // calcular el total facturado por empleado y servicio
+    facturado_por_empleado($empleados, $citas, $servicios);
 
     usort($empleados, function ($a, $b) {
         return $b["facturado"] <=> $a["facturado"];
     });
+    $cont = 1;
+    foreach ($empleados as &$empleado) {
 
-    echo "=================================================================\n";
-    echo "                  TOTAL FACTURADO POR EMPLEADO                   \n";
-    echo "=================================================================\n\n";
+        $contador_comisiones = 0;
+        $total = 0;
+        $total_comisiones = 0;
 
-    foreach ($empleados as $empleado) {
-        echo "Nombre: " . $empleado["nombre"];
-        echo " Facturado: $";
-        echo number_format(
-            $empleado["facturado"],
-            0,
-            ",",
-            "."
-        );
-        echo "\n";
+        // contador para calcular la cantidad de servicios realizados por cada empleado y el total facturado por cada uno
+        foreach ($citas as $cita) {
+            foreach ($cita["cita"] as $ct) {
+                if ($ct["empleado"] == $empleado["id"]) {
+                    $contador_comisiones += 1;
+                    $total += $cita["total"];
+                }
+            }
+        }
+
+        // calcular el total de comisiones por empleado
+        if ($contador_comisiones >= 6) {
+            $total_comisiones = $empleado["facturado"] * 0.12;
+        } else {
+            $total_comisiones = $empleado["facturado"] * 0.08;
+        }
+        $empleado["comisiones"] = $total_comisiones;
+
+        if ($cont === 1) {
+            $empleado["comisiones"] = $total_comisiones + 50000;
+            
+            echo "Empleado: " . $empleado["nombre"] . " <== Empleado con mayor facturación, recibe bono de $50.000,00\n";
+            echo "Citas atendidas: " . $contador_comisiones . "\n";
+            echo "Total Facturado: $" . number_format($empleado["facturado"], 2, ",", ".") . "\n"; 
+            echo "Total Comisiones: $" . number_format($empleado["comisiones"], 2, ",", ".") . "\n\n";
+        } else {
+            echo "Empleado: " . $empleado["nombre"] . "\n";
+            echo "Citas atendidas: " . $contador_comisiones . "\n";
+            echo "Total Facturado: $" . number_format($empleado["facturado"], 2, ",", ".") . "\n";
+            echo "Total Comisiones: $" . number_format($empleado["comisiones"], 2, ",", ".") . "\n\n";
+        }
+        $cont++;
+
+
     }
 
-    echo "\n<===          Total facturado por empleado calculado          ===>\n\n";
+    echo "\n<===          Liquidación de comisiones calculada             ===>\n\n";
 }
 
 $es_activo = true;
@@ -711,10 +777,12 @@ while ($es_activo) {
             break;
 
         case "7":
+            liquidacion_comisiones($empleados, $citas, $servicios);
             break;
 
         case "8":
             $es_activo = false;
+            echo "\n<===                 Saliendo del programa...                  ===>\n\n";
             break;
 
         case "dp":
