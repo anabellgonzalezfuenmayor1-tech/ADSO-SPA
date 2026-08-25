@@ -385,7 +385,7 @@ function servicio_mas_solicitado(array &$citas, array $servicios): void
     echo "\n<===          Total facturado por empleado calculado          ===>\n\n";
 }
 
-function agenda_por_dia(array &$citas, array $diasSemana, array $servicios, $empleados): void
+function agenda_por_dia(array &$citas, array $diasSemana, array $servicios, array $empleados): void
 {
     if (count($citas) === 0) {
         echo "\n<===                 No hay citas registradas                ===>\n\n";
@@ -718,17 +718,154 @@ function registrar_cita(array $servicios, array $empleados, array &$citas, array
         return;
     }
 
-    echo "\n";
-    echo "=================================================================\n";
-    echo "                       REGISTRAR CITA                            \n";
-    echo "=================================================================\n\n";
-
-    foreach($servicios as $servicio){
-        echo $servicio["id"] .".". " Nombre: " .$servicio["nombre"];
-
+    $nombre = readline("Digite el nombre del cliente (enter para salir): ");
+    $hora_inicio = 0;
+    if ($nombre == "") {
+        return;
     }
-}
 
+    $servicios_escogidos = [];
+    $dia_seleccionado = "";
+    while (true) {
+        echo "\n";
+        echo "=================================================================\n";
+        echo "                       REGISTRAR CITA                            \n";
+        echo "=================================================================\n\n";
+
+        foreach ($servicios as $servicio) {
+            echo "  (" . $servicio["id"] . ") ";
+            echo $servicio["nombre"] . "\n";
+        }
+        echo "=================================================================\n\n";
+
+        $especialidad = readline(
+            "Ingrese el número de la especialidad del empleado: "
+        );
+
+        if (!is_numeric($especialidad)) {
+            option_invalid();
+            continue;
+        }
+
+        $especialidad = (int) $especialidad;
+
+        if ($especialidad < 1 || $especialidad > count($servicios)) {
+            option_invalid();
+            continue;
+        }
+
+        while (true) {
+
+            echo "=================================================================\n";
+            echo "           EMPLEADOS DISPONIBLES PARA EL SERVICIO                \n";
+            echo "=================================================================\n\n";
+            $contador_disp = 0;
+            foreach ($empleados as $empleado) {
+                if (in_array($especialidad, $empleado["especialidades"])) {
+                    echo "  " . "(" . $empleado["id"] . ")" . "Nombre: " . $empleado["nombre"] . "\n";
+                    $contador_disp++;
+                }
+            }
+            echo "=================================================================\n\n";
+            $emp = readline(
+                "Digite el numero del empleado que desea escoger para el servicio: "
+            );
+            if (!is_numeric($emp)) {
+                option_invalid();
+                continue;
+            } else {
+                if ($emp >= 1 && $emp <= $contador_disp) {
+                    break;
+                } else {
+                    option_invalid();
+                }
+            }
+        }
+        $emp = (int)$emp;
+        if ($emp >= 1 && $emp <= $contador_disp) {
+            $servicios_escogidos[] = [
+                "empleado" => $emp,
+                "servicio" => $especialidad
+            ];
+            while (true) {
+                $contador = 1;
+                foreach ($diasSemana as $dia) {
+                    echo "(" . $contador . ") " . $dia . "\n";
+                    $contador++;
+                }
+                echo "\n=================================================================\n\n";
+                $dia_seleccionado = readline("Ingrese el número del día de la semana: ");
+
+                if ($dia_seleccionado < 1 || $dia_seleccionado > count($diasSemana)) {
+                    option_invalid();
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            while (true) {
+                echo "=================================================================\n";
+                echo "                 DIGITE LA HORA DE LA CITA                       \n";
+                echo "=================================================================\n\n";
+                $hora_inicio = readline(
+                    "Digite la hora de la cita escogida (8-12 o 14-18): "
+                );
+                if (!is_numeric($emp)) {
+                    option_invalid();
+                    continue;
+                } else {
+                    $hora_inicio = (int)$hora_inicio;
+                    if (($hora_inicio >= 8 && $hora_inicio <= 12) || ($hora_inicio >= 14 && $hora_inicio <= 18)) {
+                        $cont_h = 0;
+                        foreach ($servicios as $s) {
+                            if ($especialidad == $s["id"]) {
+                                $horas = $s["duracion"];
+                                $cont_h++;
+                            }
+                        }
+                        if ($cont_h != 0) {
+                            if ($hora_inicio <= 12) {
+                                if (($hora_inicio + $horas) <= 12) {
+                                    echo "Cita registrada disponible\n\n";
+                                    $servicios_escogidos[] = [
+                                        "servicio" => $servicio,
+                                        "empleado" => $especialidad,
+                                    ];
+                                    break;
+                                } else {
+                                    echo "Horas muy largas tiene que agendar mas temprano\n\n";
+                                }
+                            } else if ($hora_inicio >= 14 && $hora_inicio <= 18) {
+                                if (($hora_inicio + $horas) <= 18) {
+                                    echo "Cita registrada disponible\n\n";
+                                    $servicios_escogidos[] = [
+                                        "servicio" => $servicio,
+                                        "empleado" => $especialidad,
+                                    ];
+                                    break;
+                                } else {
+                                    echo "Horas de servicio muy largas ($horas Horas) tiene que agendar mas temprano\n\n";
+                                }
+                            }
+                        }
+                    } else {
+                        option_invalid();
+                    }
+                }
+            }
+        }
+        $cita = [
+            "nombre" => $nombre,
+            "cita" => [],
+            "dia" => $dia_seleccionado,
+            "hora_inicio" => $hora_inicio,
+            "total" => 0
+        ];
+        $citas["cita"] = $servicios_escogidos;
+        break;
+    }
+    $citas[] = $cita;
+}
 $es_activo = true;
 
 while ($es_activo) {
