@@ -861,8 +861,33 @@ function registrar_cita(array $servicios, array $empleados, array &$citas, array
             "hora_inicio" => $hora_inicio,
             "total" => 0
         ];
-        $citas["cita"] = $servicios_escogidos;
-        break;
+
+
+        while (true) {
+            $otra_cita = readline(
+                "\n¿Desea agregar otra cita? (s/n): "
+            );
+
+            switch (strtolower($otra_cita)) {
+                case "s":
+                    break 2;
+
+                case "n":
+                    $citas["cita"] = $servicios_escogidos;
+                    echo "Cita registrada disponible\n\n";
+                    echo "Citas registradar con exito\n\n";
+
+                    echo "\n";
+                    echo "=================================================================\n";
+                    echo "                Operación realizada correctamente.              \n";
+                    echo "=================================================================\n";
+                    break 3;
+
+                default:
+                    option_invalid();
+                    break;
+            }
+        }
     }
     $citas[] = $cita;
 }
